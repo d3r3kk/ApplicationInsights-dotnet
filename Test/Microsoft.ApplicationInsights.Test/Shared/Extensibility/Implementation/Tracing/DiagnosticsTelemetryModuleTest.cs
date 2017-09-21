@@ -6,7 +6,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+
     using TaskEx = System.Threading.Tasks.Task;
 
     [TestClass]
@@ -41,6 +41,50 @@
                 Assert.AreEqual(
                     diagnosticsInstrumentationKey,
                     initializedModule.Senders.OfType<PortalDiagnosticsSender>().First().DiagnosticsInstrumentationKey);
+            }
+        }
+
+        /// <summary>
+        /// A replacement IDiagnosticsSender for the DiagnosticTelemetryModule to make use of upon being initialized. This 
+        /// sender will check to see if the event data it is being asked to send contains the same information we set into
+        /// the PreInitPortalDiagnosticsSender.
+        /// </summary>
+        class TestDiagnosticThrottler : IDiagnosticsSender
+        {
+            public int SentCount = 0;
+            public int SentTestCount = 0;
+
+            public void Send(TraceEvent eventData)
+            {
+                this.SentCount++;
+                if (eventData.Payload.Any(a => { return ((string)a).Equals("Tester"); }))
+                {
+                    this.SentTestCount++;
+                }
+            }
+        }
+
+        [TestMethod]
+        public void TestDiagnosticsModuleRetainsPreInitMessages()
+        {
+            var diagnosticsInstrumentationKey = Guid.NewGuid().ToString();
+            var testSender = new TestDiagnosticThrottler();
+            using (var initializedModule = new DiagnosticsTelemetryModule() { OverrideInitialDiagnosticSender = testSender })
+            {
+                var te = new TraceEvent() { MetaData = new EventMetaData() { EventId = 1, MessageFormat = "fmt", Level = EventLevel.Critical }, Payload = new object[] { "Tester" } };
+                initializedModule.EventListener.WriteEvent(te);
+                te = new TraceEvent() { MetaData = new EventMetaData() { EventId = 2, MessageFormat = "fmt", Level = EventLevel.Critical }, Payload = new object[] { "Tester" } };
+                initializedModule.EventListener.WriteEvent(te);
+                te = new TraceEvent() { MetaData = new EventMetaData() { EventId = 3, MessageFormat = "fmt", Level = EventLevel.Critical }, Payload = new object[] { "Tester" } };
+                initializedModule.EventListener.WriteEvent(te);
+
+                // grab the sender from the module and cound the number of events.
+                Assert.AreEqual(3, initializedModule.Senders.OfType<PortalDiagnosticsQueueSender>().First().EventData.Count);
+
+                initializedModule.Initialize(new TelemetryConfiguration());
+
+                Assert.AreEqual(testSender.SentCount, testSender.SentTestCount);
+                Assert.AreEqual(3, testSender.SentTestCount);
             }
         }
 

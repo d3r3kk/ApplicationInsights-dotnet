@@ -15,6 +15,7 @@
 
         internal readonly DiagnosticsListener EventListener;
 
+        internal IDiagnosticsSender OverrideInitialDiagnosticSender = null;
         private readonly object lockObject = new object();
 
         private readonly IDiagnoisticsEventThrottlingScheduler throttlingScheduler = new DiagnoisticsEventThrottlingScheduler();
@@ -116,14 +117,19 @@
                         var queueSender = this.Senders.OfType<PortalDiagnosticsQueueSender>().First();
                         queueSender.IsDisabled = true;
                         this.Senders.Remove(queueSender);
-                        
-                        PortalDiagnosticsSender portalSender = new PortalDiagnosticsSender(
-                            configuration,
-                            new DiagnoisticsEventThrottlingManager<DiagnoisticsEventThrottling>(
-                                new DiagnoisticsEventThrottling(DiagnoisticsEventThrottlingDefaults.DefaultThrottleAfterCount),
-                                this.throttlingScheduler,
-                                DiagnoisticsEventThrottlingDefaults.DefaultThrottlingRecycleIntervalInMinutes));
-                        portalSender.DiagnosticsInstrumentationKey = this.DiagnosticsInstrumentationKey;
+
+                        var portalSender = this.OverrideInitialDiagnosticSender;
+                        if (portalSender == null)
+                        {
+                            var defaultPortalSender = new PortalDiagnosticsSender(
+                                configuration,
+                                new DiagnoisticsEventThrottlingManager<DiagnoisticsEventThrottling>(
+                                    new DiagnoisticsEventThrottling(DiagnoisticsEventThrottlingDefaults.DefaultThrottleAfterCount),
+                                    this.throttlingScheduler,
+                                    DiagnoisticsEventThrottlingDefaults.DefaultThrottlingRecycleIntervalInMinutes));
+                            defaultPortalSender.DiagnosticsInstrumentationKey = this.DiagnosticsInstrumentationKey;
+                            portalSender = defaultPortalSender;
+                        }
 
                         this.Senders.Add(portalSender);
 
@@ -137,7 +143,7 @@
                 }
             }
         }
-        
+
         /// <summary>
         /// Disposes this object.
         /// </summary>
