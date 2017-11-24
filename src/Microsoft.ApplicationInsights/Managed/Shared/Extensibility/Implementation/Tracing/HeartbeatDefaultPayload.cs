@@ -7,10 +7,13 @@
 
     internal static class HeartbeatDefaultPayload
     {
-       public static readonly string[] DefaultFields =
+        public const string UpdatedFieldsPropertyKey = "updatedFields";
+
+        public static readonly string[] DefaultFields =
         {
             "runtimeFramework",
-            "baseSdkTargetFramework"
+            "baseSdkTargetFramework",
+            UpdatedFieldsPropertyKey
         };
 
         public static void GetPayloadProperties(IEnumerable<string> disabledFields, IHeartbeatProvider provider)
@@ -29,6 +32,9 @@
                             break;
                         case "baseSdkTargetFramework":
                             provider.AddHealthProperty(fieldName, HeartbeatDefaultPayload.GetBaseSdkTargetFramework(), true);
+                            break;
+                        case UpdatedFieldsPropertyKey:
+                            provider.AddHealthProperty(fieldName, string.Empty, true);
                             break;
                         default:
                             provider.AddHealthProperty(fieldName, "UNDEFINED", false);

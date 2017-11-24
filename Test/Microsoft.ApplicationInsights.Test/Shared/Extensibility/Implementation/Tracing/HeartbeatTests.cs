@@ -234,7 +234,15 @@
                     {
                         var fieldPayload = msg.Properties.Single(a => string.Compare(a.Key, field) == 0);
                         Assert.IsNotNull(fieldPayload);
-                        Assert.IsFalse(string.IsNullOrEmpty(fieldPayload.Value));
+                        if (field.Equals(HeartbeatDefaultPayload.UpdatedFieldsPropertyKey, StringComparison.OrdinalIgnoreCase))
+                        {
+                            Assert.IsTrue(string.IsNullOrEmpty(fieldPayload.Value)); // updated fields should be empty for sdk default fields
+                        }
+                        else
+                        {
+                            Assert.IsFalse(string.IsNullOrEmpty(fieldPayload.Value)); // updated fields should not be empty
+                        }
+
                     }
                     catch (Exception)
                     {
