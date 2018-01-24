@@ -15,7 +15,7 @@ Param(
 
 if (!$StrongNamePath86)
 {
-    if (Test-Path -Path (Join-Path -Path $Env:WindowsSDK_ExecutablePath_x86 -ChildPath "sn.exe") -ErrorAction SilentlyContinue)
+    if (Test-Path -Path (Join-Path -Path $Env:WindowsSDK_ExecutablePath_x86 -ChildPath "sn.exe" -ErrorAction SilentlyContinue) -ErrorAction SilentlyContinue)
     {
         $StrongNamePath86 = (Join-Path -Path $Env:WindowsSDK_ExecutablePath_x86 -ChildPath "sn.exe")
     }
@@ -27,7 +27,7 @@ Write-Verbose "x86 sn.exe being used from '$StrongNamePath86'"
 
 if (!$StrongNamePath64)
 {
-    if (Test-Path -Path (Join-Path -Path $Env:WindowsSDK_ExecutablePath_x64 -ChildPath "sn.exe") -ErrorAction SilentlyContinue)
+    if (Test-Path -Path (Join-Path -Path $Env:WindowsSDK_ExecutablePath_x64 -ChildPath "sn.exe" -ErrorAction SilentlyContinue) -ErrorAction SilentlyContinue)
     {
         $StrongNamePath64 = (Join-Path -Path $Env:WindowsSDK_ExecutablePath_x64 -ChildPath "sn.exe")
     }
