@@ -15,11 +15,16 @@ Param(
 
 if (!$StrongNamePath86)
 {
-    if (Test-Path -Path (Join-Path -Path $Env:WindowsSDK_ExecutablePath_x86 -ChildPath "sn.exe" -ErrorAction SilentlyContinue) -ErrorAction SilentlyContinue)
+    if ($Env:WindowsSDK_ExecutablePath_x86)
     {
-        $StrongNamePath86 = (Join-Path -Path $Env:WindowsSDK_ExecutablePath_x86 -ChildPath "sn.exe")
+        if (Test-Path -Path (Join-Path -Path $Env:WindowsSDK_ExecutablePath_x86 -ChildPath "sn.exe" -ErrorAction SilentlyContinue) -ErrorAction SilentlyContinue)
+        {
+            $StrongNamePath86 = (Join-Path -Path $Env:WindowsSDK_ExecutablePath_x86 -ChildPath "sn.exe")
+        }
     }
-    else {
+
+    if (!$StrongNamePath86)
+    {
         $StrongNamePath86 = "C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.2 Tools\sn.exe"
     }
 }
@@ -27,11 +32,15 @@ Write-Verbose "x86 sn.exe being used from '$StrongNamePath86'"
 
 if (!$StrongNamePath64)
 {
-    if (Test-Path -Path (Join-Path -Path $Env:WindowsSDK_ExecutablePath_x64 -ChildPath "sn.exe" -ErrorAction SilentlyContinue) -ErrorAction SilentlyContinue)
+    if ($Env:WindowsSDK_ExecutablePath_x64)
     {
-        $StrongNamePath64 = (Join-Path -Path $Env:WindowsSDK_ExecutablePath_x64 -ChildPath "sn.exe")
+        if (Test-Path -Path (Join-Path -Path $Env:WindowsSDK_ExecutablePath_x64 -ChildPath "sn.exe" -ErrorAction SilentlyContinue) -ErrorAction SilentlyContinue)
+        {
+            $StrongNamePath64 = (Join-Path -Path $Env:WindowsSDK_ExecutablePath_x64 -ChildPath "sn.exe")
+        }
     }
-    else 
+
+    if (!$StrongNamePath64)
     {
         $StrongNamePath64 = "C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.2 Tools\x64\sn.exe"
     }
