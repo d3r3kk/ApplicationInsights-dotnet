@@ -1,1 +1,1 @@
-.\Change-StrongNameValidation.ps1 -Enable
+.\Change-StrongNameValidation.ps1 -Enable -Verbose
